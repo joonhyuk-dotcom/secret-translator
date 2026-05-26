@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 우리들만의 비밀 번역기</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #1e1e2f; color: #fff; text-align: center; padding: 20px; }
+        .box { max-width: 400px; margin: 0 auto; background: #2a2a40; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        h2 { color: #00ffcc; }
+        textarea { width: 90%; height: 80px; padding: 10px; border-radius: 8px; border: none; margin-bottom: 10px; font-size: 16px; resize: none; }
+        .btn-group { display: flex; justify-content: space-around; margin-bottom: 15px; }
+        button { font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .btn-encrypt { background-color: #ff3366; color: white; }
+        .btn-decrypt { background-color: #00ccff; color: black; }
+        button:hover { opacity: 0.8; transform: scale(1.05); }
+        .result-box { background: #111122; padding: 15px; border-radius: 8px; min-height: 50px; word-break: break-all; font-size: 18px; color: #ffff00; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>🕵️‍♂️ 비밀 암호 번역기</h2>
+    <p style="font-size: 13px; color: #aaa;">카톡으로 친구에게 비밀 메시지를 보내보세요!</p>
+    
+    <textarea id="inputText" placeholder="여기에 진짜 글이나 암호를 적으세요..."></textarea>
+    
+    <div class="btn-group">
+        <button class="btn-encrypt" onclick="makeSecret()">🔒 암호 만들기</button>
+        <button class="btn-decrypt" onclick="decodeSecret()">🔓 암호 해독하기</button>
+    </div>
+    
+    <p style="text-align: left; margin-bottom: 5px; font-size: 14px; color: #00ffcc;">✨ 결과:</p>
+    <div class="result-box" id="resultText">대기 중...</div>
+</div>
+
+<script>
+    // 글자를 암호로 바꾸는 함수 (Base64 방식 + 앞뒤에 가짜 글자 섞기)
+    function makeSecret() {
+        const text = document.getElementById("inputText").value;
+        if (!text.trim()) {
+            alert("글을 먼저 적어줘!");
+            return;
+        }
+        
+        // 한글 깨짐 방지를 위해 인코딩 후 암호화
+        try {
+            const encoded = btoa(encodeURIComponent(text));
+            // 친구들이 보면 뭔지 모르게 앞뒤에 'X_'와 '_Z'를 붙여서 헷갈리게 만듦
+            const finalSecret = "X_" + encoded + "_Z";
+            
+            document.getElementById("resultText").innerText = finalSecret;
+        } catch(e) {
+            document.getElementById("resultText").innerText = "오류가 발생했어요!";
+        }
+    }
+
+    // 암호를 다시 진짜 글자로 바꾸는 해독 함수
+    function decodeSecret() {
+        const text = document.getElementById("inputText").value.trim();
+        if (!text) {
+            alert("해독할 암호를 적어줘!");
+            return;
+        }
+        
+        // 우리가 만든 암호 형식(X_ 로 시작하고 _Z로 끝나는지) 확인
+        if (text.startsWith("X_") && text.endsWith("_Z")) {
+            try {
+                // 앞뒤에 붙였던 가짜 글자(X_, _Z)를 떼어냄
+                const pureSecret = text.substring(2, text.length - 2);
+                // 암호 해독 원상복구
+                const decoded = decodeURIComponent(atob(pureSecret));
+                
+                document.getElementById("resultText").innerText = decoded;
+            } catch(e) {
+                document.getElementById("resultText").innerText = "❌ 올바른 암호가 아니거나 글자가 깨졌어!";
+            }
+        } else {
+            document.getElementById("resultText").innerText = "❌ 비밀 암호 형식(X_..._Z)이 아닙니다!";
+        }
+    }
+</script>
+
+</body>
+</html>
